@@ -16,6 +16,7 @@ src
 在启动文件第一行加入`from require import *`即可，其他python源文件就可以自由使用require方法导入模块了。
 以上面的目录结构为例，假设init.py是启动文件，使用方法是：
 在init.py中加入`from require import *`在b.py里加入`require('../a.py')`便可以导入a.py模块了。
+如果希望导入模块并且将模块的全局变量应用到当前环境，简单的说就是类似`from modA import *`使用require的写法就是`require('modA', globals())`
 
 ## 关于循环导入
 导入顺序和python一致，在test目录下有测试代码
