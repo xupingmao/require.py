@@ -25,15 +25,24 @@ def split_path(path):
             name = ''
         else:
             name += c
-    cached_pathes.append(name)
+    if name != '':cached_pathes.append(name)
     return cached_pathes
 
 # join a list like ['home', 'usr'] to a dir "home/usr"
+# also handle pathes like 'home/usr/../proc' to "home/proc"
 def join_path(path_list):
     if len(path_list) == 0: return ""
     else: lastdir = path_list.pop()
     path = ''
+    cleanpath = []
     for item in path_list:
+        if item == '..':
+            cleanpath.pop()
+        elif item == '.':
+            pass
+        else:
+            cleanpath.append(item)
+    for item in cleanpath:
         path += item + FILE_SEP
     return path + lastdir
 
@@ -41,14 +50,7 @@ def getabspath(cwd, path):
     fs1 = split_path(cwd)
     fs2 = split_path(path)
     file = fs2.pop()
-    for item in fs2:
-        if item == '..':
-            fs1.pop()
-        elif item == '.':
-            pass
-        else:
-            fs1.append(item)
-    parent = join_path(fs1)
+    parent = join_path(fs1 + fs2)
     abspath = os.path.join(parent, file)
     return abspath, parent, file
     
@@ -107,3 +109,6 @@ def add_builtin(name, func):
         setattr(__builtins__, name, func)
 add_builtin('require', require)
 
+def print_cached_modules():
+    for path in _modules.cached_pathes:
+        print(path)
