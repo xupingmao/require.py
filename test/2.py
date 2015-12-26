@@ -1,1 +1,1 @@
-require("1")
+name = '2'

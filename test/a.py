@@ -2,6 +2,6 @@
 from require import *
 
 require('b')
-require('d/c')
-
+c = require('d/c')
+print(c, dir(c))
 print_cached_modules()

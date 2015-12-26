@@ -59,7 +59,7 @@ def require(path, globals = None):
     '''require python module from relative path'''
     syspath_modified = False
     cwd = _modules.cwd
-
+    exc = None # exception
     if '/' not in path:
         parent = None
         file = path
@@ -81,7 +81,10 @@ def require(path, globals = None):
             if parent not in sys.path:
                 sys.path.insert(0, parent)
                 syspath_modified = True
-        m = __import__(file)
+        try:
+            m = __import__(file)
+        except Exception as e:
+            exc = e # restore environment and raise Exception
         # restore `sys.path`
         if syspath_modified:
             del sys.path[0]
@@ -89,6 +92,8 @@ def require(path, globals = None):
             # switch back current working directory
             os.chdir(cwd)
             _modules.cwd = cwd
+        if exc is not None:
+            raise exc
         _modules.cached_modules.append(m)
         _modules.cached_pathes.append(abspath)
         # print 'loadlib', abspath
