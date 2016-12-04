@@ -1,14 +1,21 @@
 import os
 import sys
 
+'''
+require function for python
+    
+    2016-12-04 : Add require parameter to force update module
+
+'''
+
 FILE_SEP = os.sep
 
 class M:
     '''just call it `M`'''
     def __init__(self):
-        self.cached_pathes = []
-        self.cached_modules = []
+        self.cache = {}
         self.cwd = os.getcwd()
+        self.root = self.cwd
 
 # makesure there is only one `M`
 if '_modules' not in globals():
@@ -17,16 +24,16 @@ if '_modules' not in globals():
 # split path to list of directories
 # eg. home/usr => ['home', 'usr']
 def split_path(path):
-    cached_pathes = []
+    path_list = []
     name = ''
     for c in path:
         if c == '/' or c == '\\':
-            cached_pathes.append(name)
+            path_list.append(name)
             name = ''
         else:
             name += c
-    if name != '':cached_pathes.append(name)
-    return cached_pathes
+    if name != '':path_list.append(name)
+    return path_list
 
 # join a list like ['home', 'usr'] to a dir "home/usr"
 # also handle pathes like 'home/usr/../proc' to "home/proc"
@@ -55,7 +62,7 @@ def getabspath(cwd, path):
     return abspath, parent, file
     
     
-def require(path, globals = None):
+def require(path, globals = None, force=False):
     '''require python module from relative path'''
     syspath_modified = False
     cwd = _modules.cwd
@@ -67,10 +74,9 @@ def require(path, globals = None):
     else:
         abspath, parent, file = getabspath(cwd, path)
 
-    if abspath in _modules.cached_pathes:
+    if not force and abspath in _modules.cache:
         # find module in cached_modules
-        idx = _modules.cached_pathes.index(abspath)
-        m = _modules.cached_modules[idx]
+        m = _modules.cache[abspath]
     else:
         if parent != None:
             # change current working directory
@@ -82,6 +88,15 @@ def require(path, globals = None):
                 sys.path.insert(0, parent)
                 syspath_modified = True
         try:
+            if force and abspath in _modules.cache:
+                oldm = _modules.cache[abspath]
+                modulescopy = sys.modules.copy()
+                for key in modulescopy:
+                    value = sys.modules[key]
+                    if value == oldm:
+                        # print("del %s, %s" % (key, sys.modules[key]))
+                        del sys.modules[key]
+                        break
             m = __import__(file)
         except Exception as e:
             exc = e # restore environment and raise Exception
@@ -94,8 +109,8 @@ def require(path, globals = None):
             _modules.cwd = cwd
         if exc is not None:
             raise exc
-        _modules.cached_modules.append(m)
-        _modules.cached_pathes.append(abspath)
+        
+        _modules.cache[abspath] = m
         # print 'loadlib', abspath
     # import attributes to target globals.
     if globals:
@@ -115,5 +130,6 @@ def add_builtin(name, func):
 add_builtin('require', require)
 
 def print_cached_modules():
-    for path in _modules.cached_pathes:
-        print(path)
+    for path in _modules.cache:
+        mod = _modules.cache[path]
+        print(mod)

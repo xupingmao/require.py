@@ -1,2 +1,2 @@
-print 'i1'
+print('i1')
 import i2

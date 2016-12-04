@@ -1,4 +1,5 @@
 
 require('e')
-require('../b')
+b = require('../b')
+print(b)
 require('f/g')

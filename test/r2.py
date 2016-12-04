@@ -1,2 +1,2 @@
-print 'r2'
+print('r2')
 require('r1')
