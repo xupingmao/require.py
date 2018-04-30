@@ -1,6 +1,6 @@
 # require.py
 
-## 功能
+## 为什么要require.py
 模仿nodejs的require方法导入模块
 使用Python的时候我们有时候会遇到这样的问题：
 ```

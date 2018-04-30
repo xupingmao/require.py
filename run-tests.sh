@@ -5,7 +5,7 @@ pushd test
 python test-main.py
 
 # do some cleanings
-rm require.py
+# rm require.py
 # back
 popd
 
