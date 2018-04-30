@@ -4,8 +4,12 @@ import sys
 '''
 require function for python
     
+    2018-04-30 : Add set_entry_file to set programe entry path, the root will be cwd by default.
+
     2016-12-04 : Add require parameter to force update module
 
+@author xupingmao
+@modified 2018/04/30 14:46:57
 '''
 
 FILE_SEP = os.sep
@@ -15,15 +19,23 @@ class M:
     def __init__(self):
         self.cache = {}
         self.cwd = os.getcwd()
+        # self.cwd = os.path.dirname(__file__)
         self.root = self.cwd
 
 # makesure there is only one `M`
 if '_modules' not in globals():
     _modules = M()
 
-# split path to list of directories
-# eg. home/usr => ['home', 'usr']
+def set_entry_file(fpath):
+    fpath = os.path.abspath(fpath)
+    _modules.root = os.path.dirname(fpath)
+    _modules.cwd = _modules.root
+
+
 def split_path(path):
+    """split path to list of directories
+    eg. home/usr => ['home', 'usr']
+    """
     path_list = []
     name = ''
     for c in path:
@@ -35,9 +47,14 @@ def split_path(path):
     if name != '':path_list.append(name)
     return path_list
 
-# join a list like ['home', 'usr'] to a dir "home/usr"
-# also handle pathes like 'home/usr/../proc' to "home/proc"
 def join_path(path_list):
+    """join a list of string to a valid path
+
+        >>> join_path(['home', 'usr'])
+        'home/usr'
+        >>> join_path(['home/usr/../proc'])
+        'home/proc'
+    """
     if len(path_list) == 0: return ""
     else: lastdir = path_list.pop()
     path = ''
@@ -133,3 +150,5 @@ def print_cached_modules():
     for path in _modules.cache:
         mod = _modules.cache[path]
         print(mod)
+
+
